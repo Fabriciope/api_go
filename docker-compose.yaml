@@ -1,0 +1,19 @@
+version: '3.0'
+
+services:
+  MYSQL:
+    image: mysql:8.0
+    
+    environment:
+      MYSQL_DATABASE: '${DB_NAME}'
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+    volumes:
+      - 'db_api_golang:/var/lib/mysql'
+      
+    ports:
+      - '${DB_PORT}:3306'
+
+volumes:
+  db_api_golang:
+    driver: local
