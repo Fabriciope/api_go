@@ -10,7 +10,7 @@ import (
 )
 
 type ProductService struct {
-	Repository *repositories.ProductRepository
+	Repository repositories.RepositoryInterface
 }
 
 func (s *ProductService) CreateProduct(dto *dto.CreateProductInput) error {

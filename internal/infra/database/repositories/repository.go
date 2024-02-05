@@ -1,8 +1,7 @@
 package repositories
 
 import (
-	"database/sql"
-
+	"github.com/Fabriciope/my-api/internal/infra/database"
 	"github.com/Fabriciope/my-api/internal/models"
 	"github.com/google/uuid"
 )
@@ -22,7 +21,13 @@ type Container struct {
 	Product RepositoryInterface
 }
 
-func NewRepository(conn *sql.DB) (*Container, error) {
+// TODO: ter duas conexões por repositório (uma para leitura e outra para escrita)
+func NewRepository() (*Container, error) {
+	conn, err := database.Connect()
+	if err != nil {
+		return nil, err
+	}
+
 	return &Container {
 		User: newUserRepository(conn),
 		Product: newProductRepository(conn),

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/Fabriciope/my-api/configs"
-	"github.com/Fabriciope/my-api/internal/infra/database"
 	"github.com/Fabriciope/my-api/internal/models"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
@@ -19,12 +18,10 @@ func init() {
 		DBName:     "api_golang",
 		DBPassword: "password",
 	}
-
-	conn, _ = database.Connect()
 }
 
 func TestInsertNewProduct(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 
 	product, _ := models.NewProduct(gofakeit.ProductName(), int(gofakeit.Price(800, 3000)))
 	err := repository.Product.Create(product)
@@ -37,7 +34,7 @@ func TestInsertNewProduct(t *testing.T) {
 }
 
 func TestUpdateAProduct(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 	
 	product, _ := models.NewProduct(gofakeit.ProductName(), int(gofakeit.Price(800, 3000)))
 	repository.Product.Create(product)
@@ -57,7 +54,7 @@ func TestUpdateAProduct(t *testing.T) {
 }
 
 func TestDeleteAProduct(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 	
 	product, _ := models.NewProduct(gofakeit.ProductName(), int(gofakeit.Price(800, 3000)))
 	repository.Product.Create(product)
@@ -73,7 +70,7 @@ func TestDeleteAProduct(t *testing.T) {
 }
 
 func TestFindAllProductsWithPagination(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 
 	for i := 0; i <= 10; i++ {
 		product, _ := models.NewProduct(gofakeit.Name(), int(gofakeit.Price(1000, 3000)))
@@ -88,7 +85,7 @@ func TestFindAllProductsWithPagination(t *testing.T) {
 }
 
 func TestFindOneProduct(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 
 	product, _ := models.NewProduct(gofakeit.ProductName(), int(gofakeit.Price(800, 3000)))
 	repository.Product.Create(product)
@@ -106,7 +103,7 @@ func TestFindOneProduct(t *testing.T) {
 }
 
 func TestFindOneProductWhenDataIsWrong(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 
 	userFound, err := repository.Product.FindOneWhere("name", "wrong-name")
 

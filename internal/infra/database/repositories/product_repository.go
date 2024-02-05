@@ -9,13 +9,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type ProductRepository struct {
+type productRepository struct {
 	db *sql.DB
 	defaultActions defaultActions
 }
 
-func newProductRepository(conn *sql.DB) *ProductRepository {
-	return &ProductRepository{
+func newProductRepository(conn *sql.DB) *productRepository {
+	return &productRepository{
 		db: conn,
 		defaultActions: defaultActions{
 			db: conn,
@@ -24,7 +24,7 @@ func newProductRepository(conn *sql.DB) *ProductRepository {
 	}
 }
 
-func (pr *ProductRepository) Create(product models.ModelInterface) error {
+func (pr *productRepository) Create(product models.ModelInterface) error {
 	if !pr.validateModel(product) {
 		return errInvalidModel
 	}
@@ -37,7 +37,7 @@ func (pr *ProductRepository) Create(product models.ModelInterface) error {
 	return nil
 }
 
-func (pr *ProductRepository) Update(product models.ModelInterface) error {
+func (pr *productRepository) Update(product models.ModelInterface) error {
 	if !pr.validateModel(product) {
 		return errInvalidModel
 	}
@@ -50,11 +50,11 @@ func (pr *ProductRepository) Update(product models.ModelInterface) error {
 	return nil
 }
 
-func (pr *ProductRepository) Delete(id uuid.UUID) error {
+func (pr *productRepository) Delete(id uuid.UUID) error {
 	return pr.defaultActions.destroy(id)
 }
 
-func (pr *ProductRepository) FindAllWithPagination(page, limit int, sort string) ([]models.ModelInterface, error) {
+func (pr *productRepository) FindAllWithPagination(page, limit int, sort string) ([]models.ModelInterface, error) {
 	sort = strings.ToUpper(sort)
 	if sort != "ASC" && sort != "DESC" {
 		sort = "ASC"
@@ -87,7 +87,7 @@ func (pr *ProductRepository) FindAllWithPagination(page, limit int, sort string)
 	return products, nil
 }
 
-func (pr *ProductRepository) FindOneWhere(attr string, value interface{}) (models.ModelInterface, error) {
+func (pr *productRepository) FindOneWhere(attr string, value interface{}) (models.ModelInterface, error) {
 	query := fmt.Sprintf("SELECT * FROM products WHERE %s = ?", attr)
 	stmt, err := pr.db.Prepare(query)
 	if err != nil {
@@ -104,7 +104,7 @@ func (pr *ProductRepository) FindOneWhere(attr string, value interface{}) (model
 	return &p, nil
 }
 
-func (pr *ProductRepository) validateModel(model models.ModelInterface) bool {
+func (pr *productRepository) validateModel(model models.ModelInterface) bool {
 	_, ok := model.(*models.Product)
 	return ok
 }

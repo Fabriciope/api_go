@@ -1,17 +1,13 @@
 package repositories
 
 import (
-	"database/sql"
 	"testing"
 
 	"github.com/Fabriciope/my-api/configs"
-	"github.com/Fabriciope/my-api/internal/infra/database"
 	"github.com/Fabriciope/my-api/internal/models"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
 )
-
-var conn *sql.DB
 
 func init() {
 	configs.Cfg = &configs.Config{
@@ -22,13 +18,11 @@ func init() {
 		DBName: "api_golang",
 		DBPassword: "password",
 	}
-
-	conn, _ = database.Connect()
 }
 
 
 func TestInsertNewUser(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 
 	user, _ := models.NewUser(gofakeit.Name(), gofakeit.Email(), "password")
 	err := repository.User.Create(user)
@@ -41,7 +35,7 @@ func TestInsertNewUser(t *testing.T) {
 }
 
 func TestUpdateAUser(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 	
 	user, _ := models.NewUser(gofakeit.Name(), gofakeit.Email(), "password")
 	repository.User.Create(user)
@@ -61,7 +55,7 @@ func TestUpdateAUser(t *testing.T) {
 }
 
 func TestDeleteAUser(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 	
 	user, _ := models.NewUser(gofakeit.Name(), gofakeit.Email(), "password")
 	repository.User.Create(user)
@@ -77,7 +71,7 @@ func TestDeleteAUser(t *testing.T) {
 }
 
 func TestFindAllUsersWithPagination(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 
 	for i := 0; i <= 10; i++ {
 		user, _ := models.NewUser(gofakeit.Name(), gofakeit.Email(), "password")
@@ -92,7 +86,7 @@ func TestFindAllUsersWithPagination(t *testing.T) {
 }
 
 func TestFindOneUser(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 
 	user, _ := models.NewUser(gofakeit.Name(), gofakeit.Email(), "password")
 	repository.User.Create(user)
@@ -111,7 +105,7 @@ func TestFindOneUser(t *testing.T) {
 }
 
 func TestFindOneUserWhenDataIsWrong(t *testing.T) {
-	repository, _ := NewRepository(conn)
+	repository, _ := NewRepository()
 
 	userFound, err := repository.User.FindOneWhere("email", "wrongEmail@gmail.com")
 

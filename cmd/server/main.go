@@ -1,18 +1,14 @@
 package main
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/Fabriciope/my-api/configs"
-	"github.com/Fabriciope/my-api/internal/infra/database"
 	"github.com/Fabriciope/my-api/internal/infra/webserver/handlers"
 	"github.com/Fabriciope/my-api/pkg"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
-
-var conn *sql.DB
 
 func init() {
 	config, err := configs.LoadConfig(".")
@@ -20,12 +16,6 @@ func init() {
 		panic(err)
 	}
 	configs.Cfg = config
-
-	//TODO: pensar em tirar a conexão daqui e colocar diretamente na função newRepository(), assim a cada repositório instanciado é uma nova conexão com o banco de dados, e tb pensar em ter duas conexões por repositório (uma para leitura e outra para escrita)
-	conn, err = database.Connect()
-	if err != nil {
-		panic(err)
-	}
 }
 
 func main() {
@@ -46,7 +36,7 @@ func main() {
 }
 
 func makeRoutes(r *chi.Mux) {
-	h, err := handlers.LoadHandlers(conn)
+	h, err := handlers.LoadHandlers()
 	if err != nil {
 		pkg.LogError("Error: load handlers", err)
 		return

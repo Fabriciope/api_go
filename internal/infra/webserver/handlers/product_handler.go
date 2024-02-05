@@ -12,13 +12,13 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type ProductHandler struct {
-	repository *repositories.ProductRepository
+type productHandler struct {
+	repository repositories.RepositoryInterface
 	service    *services.ProductService
 }
 
-func NewProductHandler(repository *repositories.ProductRepository) *ProductHandler {
-	return &ProductHandler{
+func newProductHandler(repository repositories.RepositoryInterface) *productHandler {
+	return &productHandler{
 		repository: repository,
 		service: &services.ProductService{
 			Repository: repository,
@@ -26,7 +26,7 @@ func NewProductHandler(repository *repositories.ProductRepository) *ProductHandl
 	}
 }
 
-func (h *ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *productHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var productDTO dto.CreateProductInput
 	err := json.NewDecoder(r.Body).Decode(&productDTO)
 	if err != nil {
@@ -46,7 +46,7 @@ func (h *ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
 	w.Write(responses.SuccessToJson("product created"))
 }
 
-func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *productHandler) Update(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -75,7 +75,7 @@ func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
 	w.Write(responses.SuccessToJson("product updated"))
 }
 
-func (h *ProductHandler) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *productHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	if id := chi.URLParam(r, "id"); id != "" {
 		err := h.service.DeleteProduct(id)
 		if err != nil {
@@ -93,7 +93,7 @@ func (h *ProductHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Write(responses.ErrorToJson("id is required"))
 }
 
-func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+func (h *productHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	if id := chi.URLParam(r, "id"); id != "" {
 		productFound, err := h.repository.FindOneWhere("id", chi.URLParam(r, "id"))
 		if err != nil {
@@ -111,7 +111,7 @@ func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(responses.ErrorToJson("id is required"))
 }
 
-func (h *ProductHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+func (h *productHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	// page, errPage := strconv.Atoi(r.URL.Query().Get("page"))
 	// limit, errLimit := strconv.Atoi(r.URL.Query().Get("limit"))
 	page, errPage := strconv.Atoi(chi.URLParam(r, "page"))
