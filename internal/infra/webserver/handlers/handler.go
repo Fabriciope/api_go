@@ -1,24 +1,25 @@
 package handlers
 
 import (
-	"database/sql"
-
 	"github.com/Fabriciope/my-api/internal/infra/database/repositories"
 )
 
 type handlers struct {
-	Product *ProductHandler
+	Product *productHandler
+	User *userHandler
 }
 
-func LoadHandlers(conn *sql.DB) (*handlers, error) {
-	repository, err := repositories.NewRepository(conn)
+func LoadHandlers() (*handlers, error) {
+	repository, err := repositories.NewRepository()
 	if err != nil {
 		return nil, err
 	}
 
-	productHandler := NewProductHandler(repository.Product.(*repositories.ProductRepository))
+	productHandler := newProductHandler(repository.Product)
+	userHandler := newUserHandler(repository.User)
 
 	return &handlers{
 		Product: productHandler,
+		User: userHandler,
 	}, nil
 }
