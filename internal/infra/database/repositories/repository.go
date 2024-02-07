@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// TODO: fazer uma função makeAction(func()) para a camada de serviço personalizar as query
 type RepositoryInterface interface {
 	Create(models.ModelInterface) error
 	Update(models.ModelInterface) error
