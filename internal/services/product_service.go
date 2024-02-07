@@ -9,8 +9,13 @@ import (
 	"github.com/google/uuid"
 )
 
+// TODO: testar
 type ProductService struct {
 	Repository repositories.RepositoryInterface
+}
+
+func NewProductService(repository repositories.RepositoryInterface) *ProductService {
+	return &ProductService{repository}
 }
 
 func (s *ProductService) CreateProduct(dto *dto.CreateProductInput) error {
