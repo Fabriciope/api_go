@@ -9,14 +9,12 @@ import (
 
 
 func init() {
-	configs.Cfg = &configs.Config{
-		DBDriver: "mysql",
-		DBHost: "localhost",
-		DBPort: 7000,
-		DBUser: "root",
-		DBName: "api_golang",
-		DBPassword: "password",
-	}
+	configs.Cfg.DBDriver = "mysql"
+	configs.Cfg.DBHost = "localhost"
+	configs.Cfg.DBPort = 7000
+	configs.Cfg.DBUser = "root"
+	configs.Cfg.DBName = "api_golang"
+	configs.Cfg.DBPassword = "password"	
 }
 
 func TestConnection(t *testing.T) {

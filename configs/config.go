@@ -5,26 +5,26 @@ import (
 	"github.com/spf13/viper"
 )
 
-var Cfg *Config
+var Cfg *config
 
-type Config struct {
+type config struct {
 	DBDriver   string `mapstructure:"DB_DRIVER"`
 	DBHost     string `mapstruture:"DB_HOST"`
-	DBPort     int    `mapstructure:"DB_PORT"`
+	DBPort     uint   `mapstructure:"DB_PORT"`
 	DBUser     string `mapstructure:"DB_USER"`
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBName     string `mapstructure:"DB_NAME"`
 
-	WebServerPort int `mapstructure:"WEB_SERVER_PORT"`
+	WebServerPort uint `mapstructure:"WEB_SERVER_PORT"`
 
 	JWTSecret    string `mapstructure:"JWT_SECRET"`
-	JWTExpiresIn int    `mapstructure:"JWT_EXPIRES_IN"`
+	JWTExpiresIn uint   `mapstructure:"JWT_EXPIRES_IN"`
 	JWTTokenAuth *jwtauth.JWTAuth
 	//JWTTokenAuthKey string
 }
 
-func LoadConfig(path string) (*Config, error) {
-	var cfg *Config
+func LoadConfig(path string) error {
+	var c config
 
 	vipConfig := viper.New()
 	vipConfig.SetConfigName("app_config")
@@ -37,15 +37,16 @@ func LoadConfig(path string) (*Config, error) {
 	vipConfig.AutomaticEnv()
 	err := vipConfig.ReadInConfig()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	err = vipConfig.Unmarshal(&cfg)
+	err = vipConfig.Unmarshal(&c)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	cfg.JWTTokenAuth = jwtauth.New("HS256", []byte(cfg.JWTSecret), nil)
+	c.JWTTokenAuth = jwtauth.New("HS256", []byte(c.JWTSecret), nil)
 
-	return cfg, nil
+	Cfg = &c
+	return nil
 }
