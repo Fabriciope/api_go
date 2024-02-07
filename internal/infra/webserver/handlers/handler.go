@@ -15,11 +15,8 @@ func LoadHandlers() (*handlers, error) {
 		return nil, err
 	}
 
-	productHandler := newProductHandler(repository.Product)
-	userHandler := newUserHandler(repository.User)
-
 	return &handlers{
-		Product: productHandler,
-		User: userHandler,
+		Product: newProductHandler(repository.Product),
+		User: newUserHandler(repository.User),
 	}, nil
 }

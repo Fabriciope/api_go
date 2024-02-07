@@ -20,9 +20,7 @@ type productHandler struct {
 func newProductHandler(repository repositories.RepositoryInterface) *productHandler {
 	return &productHandler{
 		repository: repository,
-		service: &services.ProductService{
-			Repository: repository,
-		},
+		service: services.NewProductService(repository),
 	}
 }
 
