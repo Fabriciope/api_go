@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Fabriciope/my-api/configs"
@@ -8,14 +9,14 @@ import (
 	"github.com/Fabriciope/my-api/pkg"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/jwtauth"
 )
 
 func init() {
-	config, err := configs.LoadConfig(".")
+	err := configs.LoadConfig(".")
 	if err != nil {
-		panic(err)
+		pkg.LogError("Error: load config", err)
 	}
-	configs.Cfg = config
 }
 
 func main() {
@@ -32,9 +33,10 @@ func main() {
 
 	makeRoutes(r)
 
-	http.ListenAndServe(":8000", r)
+	http.ListenAndServe(fmt.Sprintf(":%d", configs.Cfg.WebServerPort), r)
 }
 
+// TODO: testar todas as requisições
 func makeRoutes(r *chi.Mux) {
 	h, err := handlers.LoadHandlers()
 	if err != nil {
@@ -43,10 +45,20 @@ func makeRoutes(r *chi.Mux) {
 	}
 
 	r.Route("/product", func(r chi.Router) {
-		r.Post("/create", h.Product.Create)
-		r.Put("/update/{id}", h.Product.Update)
-		r.Delete("/delete/{id}", h.Product.Delete)
-		r.Get("/{id}", h.Product.GetByID)
-		r.Get("/all/{page}/{limit}", h.Product.GetAll)
+		r.Use(jwtauth.Verifier(configs.Cfg.JWTTokenAuth))
+		r.Use(jwtauth.Authenticator)
+
+		hp := h.Product
+		r.Post("/create", hp.Create)
+		r.Put("/update/{id}", hp.Update)
+		r.Delete("/delete/{id}", hp.Delete)
+		r.Get("/{id}", hp.GetByID)
+		r.Get("/all/{page}/{limit}", hp.GetAll)
+	})
+
+	r.Route("/user", func(r chi.Router) {
+		hu := h.User
+		r.Post("/create", hu.Create)
+		r.Post("/generate_jwt", hu.GetJWT)
 	})
 }
