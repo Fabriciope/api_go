@@ -7,7 +7,6 @@ import (
 
 	"github.com/Fabriciope/my-api/internal/dto"
 	"github.com/Fabriciope/my-api/internal/infra/database/repositories"
-	"github.com/Fabriciope/my-api/internal/infra/webserver/responses"
 	"github.com/Fabriciope/my-api/internal/services"
 	"github.com/go-chi/chi/v5"
 )
@@ -29,26 +28,26 @@ func (h *productHandler) Create(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&productDTO)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(responses.ErrorToJson("invalid parameters"))
+		w.Write(errorToJson("invalid parameters"))
 		return
 	}
 
 	err = h.service.CreateProduct(&productDTO)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(responses.ErrorToJson(err.Error()))
+		w.Write(errorToJson(err.Error()))
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write(responses.SuccessToJson("product created"))
+	w.Write(successToJson("product created"))
 }
 
 func (h *productHandler) Update(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(responses.ErrorToJson("id is required"))
+		w.Write(errorToJson("id is required"))
 		return
 	}
 
@@ -58,19 +57,19 @@ func (h *productHandler) Update(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&productDTO)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(responses.ErrorToJson("invalid parameters"))
+		w.Write(errorToJson("invalid parameters"))
 		return
 	}
 
 	err = h.service.UpdateProduct(id, &productDTO)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(responses.ErrorToJson(err.Error()))
+		w.Write(errorToJson(err.Error()))
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(responses.SuccessToJson("product updated"))
+	w.Write(successToJson("product updated"))
 }
 
 func (h *productHandler) Delete(w http.ResponseWriter, r *http.Request) {
@@ -78,17 +77,17 @@ func (h *productHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		err := h.service.DeleteProduct(id)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write(responses.ErrorToJson(err.Error()))
+			w.Write(errorToJson(err.Error()))
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write(responses.SuccessToJson("product deleted"))
+		w.Write(successToJson("product deleted"))
 		return
 	}
 
 	w.WriteHeader(http.StatusBadRequest)
-	w.Write(responses.ErrorToJson("id is required"))
+	w.Write(errorToJson("id is required"))
 }
 
 func (h *productHandler) GetByID(w http.ResponseWriter, r *http.Request) {
@@ -96,17 +95,17 @@ func (h *productHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 		productFound, err := h.repository.FindOneWhere("id", chi.URLParam(r, "id"))
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write(responses.ErrorToJson("product not found"))
+			w.Write(errorToJson("product not found"))
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write(responses.SuccessWithDataToJson("product found", productFound))
+		w.Write(successWithDataToJson("product found", productFound))
 		return
 	}
 
 	w.WriteHeader(http.StatusBadRequest)
-	w.Write(responses.ErrorToJson("id is required"))
+	w.Write(errorToJson("id is required"))
 }
 
 func (h *productHandler) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -116,7 +115,7 @@ func (h *productHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	limit, errLimit := strconv.Atoi(chi.URLParam(r, "limit"))
 	if errPage != nil || errLimit != nil || page <= 0 || limit <= 0 {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write(responses.ErrorToJson("the page and limit parameters must be numbers and above 0"))
+		w.Write(errorToJson("the page and limit parameters must be numbers and above 0"))
 		return
 	}
 
@@ -124,14 +123,14 @@ func (h *productHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	productsWithPagination, err := h.repository.FindAllWithPagination(page, limit, sort)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(responses.ErrorToJson(err.Error()))
+		w.Write(errorToJson(err.Error()))
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(responses.SuccessWithDataToJson(
+	w.Write(successWithDataToJson(
 		"products found",
-		responses.AllProductsResponse{
+		dto.AllProductsOutput{
 			Page:     uint(page),
 			Limit:    uint(limit),
 			Sort:     sort,

@@ -6,7 +6,6 @@ import (
 
 	"github.com/Fabriciope/my-api/internal/dto"
 	"github.com/Fabriciope/my-api/internal/infra/database/repositories"
-	"github.com/Fabriciope/my-api/internal/infra/webserver/responses"
 	"github.com/Fabriciope/my-api/internal/services"
 )
 
@@ -27,19 +26,19 @@ func (uh *userHandler) Create(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&userDTO)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(responses.ErrorToJson("invalid parameters"))
+		w.Write(errorToJson("invalid parameters"))
 		return
 	}
 
 	err = uh.service.CreateUser(&userDTO)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(responses.ErrorToJson(err.Error()))
+		w.Write(errorToJson(err.Error()))
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write(responses.SuccessToJson("user created"))
+	w.Write(successToJson("user created"))
 }
 
 func (uh *userHandler) GetJWT(w http.ResponseWriter, r *http.Request) {
@@ -47,21 +46,27 @@ func (uh *userHandler) GetJWT(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&JWTDTO)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(responses.ErrorToJson("invalid parameters"))
+		w.Write(dto.DefaultOutput{
+			Error: true,
+			Message: "invalid parameters",
+		}.ToJson())
 		return
 	}
 
 	token, err := uh.service.AuthenticateUser(JWTDTO)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write(responses.ErrorToJson(err.Error()))
+		w.Write(dto.DefaultOutput{
+			Error: true,
+			Message: err.Error(),
+		}.ToJson())
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(responses.SuccessWithDataToJson(
+	w.Write(successWithDataToJson(
 		"authenticated",
-		responses.GetJWTResponse{
+		dto.GetJWTOutput{
 			AccessToken: token,
 		},
 	))
