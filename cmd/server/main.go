@@ -5,11 +5,13 @@ import (
 	"net/http"
 
 	"github.com/Fabriciope/my-api/configs"
+	_ "github.com/Fabriciope/my-api/docs"
 	"github.com/Fabriciope/my-api/internal/infra/webserver/handlers"
 	"github.com/Fabriciope/my-api/pkg"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func init() {
@@ -19,6 +21,21 @@ func init() {
 	}
 }
 
+//	@title			API golang
+//	@version		1.0
+//	@description	My first API in golang.
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	Fabrício Pereira Alves
+//	@contact.email	fabricioalves.dev@gmail.com
+
+//	@host		localhost:8000
+//	@BasePath	/
+//	@accept		json
+
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
 func main() {
 	// TODO: estudar context para aplicar tempo limite às requisições
 	r := chi.NewRouter()
@@ -52,7 +69,7 @@ func makeRoutes(r *chi.Mux) {
 		r.Post("/create", hp.Create)
 		r.Put("/update/{id}", hp.Update)
 		r.Delete("/delete/{id}", hp.Delete)
-		r.Get("/{id}", hp.GetByID)
+		r.Get("/{id}", hp.Get)
 		r.Get("/all/{page}/{limit}", hp.GetAll)
 	})
 
@@ -61,4 +78,9 @@ func makeRoutes(r *chi.Mux) {
 		r.Post("/create", hu.Create)
 		r.Post("/generate_jwt", hu.GetJWT)
 	})
+
+	// Swagger documentation
+	r.Get("/docs/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8000/docs/doc.json"),
+	))
 }

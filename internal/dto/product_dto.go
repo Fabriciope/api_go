@@ -19,10 +19,10 @@ type UpdateProductInput struct {
 }
 
 type AllProductsOutput struct {
-	Page     uint                    `json:"page"`
-	Limit    uint                    `json:"limit"`
-	Sort     string                  `json:"sort"`
-	Products []models.ModelInterface `json:"products"`
+	Page     uint             `json:"page"`
+	Limit    uint             `json:"limit"`
+	Sort     string           `json:"sort"`
+	Products []models.Product `json:"products"`
 }
 
 func (r AllProductsOutput) ToJson() []byte {

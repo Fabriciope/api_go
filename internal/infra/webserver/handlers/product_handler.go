@@ -19,10 +19,22 @@ type productHandler struct {
 func newProductHandler(repository repositories.RepositoryInterface) *productHandler {
 	return &productHandler{
 		repository: repository,
-		service: services.NewProductService(repository),
+		service:    services.NewProductService(repository),
 	}
 }
 
+// Create godoc
+//
+//	@Summary		Create a product
+//	@Description	Create a new product
+//	@Tags			product
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.CreateProductInput	true	"product request"
+//	@Success		201		{object}	dto.DefaultOutput
+//	@Failure		400		{object}	dto.DefaultOutput
+//	@Router			/product/create [post]
+//	@Security		ApiKeyAuth
 func (h *productHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var productDTO dto.CreateProductInput
 	err := json.NewDecoder(r.Body).Decode(&productDTO)
@@ -43,6 +55,18 @@ func (h *productHandler) Create(w http.ResponseWriter, r *http.Request) {
 	w.Write(successToJson("product created"))
 }
 
+// Update godoc
+//
+//	@Summary		Update product
+//	@Description	Update a product
+//	@Tags			product
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.UpdateProductInput	true	"update product request"
+//	@Success		200		{object}	dto.DefaultOutput
+//	@Failure		400		{object}	dto.DefaultOutput
+//	@Router			/product/update/{id} [put]
+//	@Security		ApiKeyAuth
 func (h *productHandler) Update(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
@@ -50,8 +74,6 @@ func (h *productHandler) Update(w http.ResponseWriter, r *http.Request) {
 		w.Write(errorToJson("id is required"))
 		return
 	}
-
-	// r.ParseForm()
 
 	var productDTO dto.UpdateProductInput
 	err := json.NewDecoder(r.Body).Decode(&productDTO)
@@ -72,6 +94,18 @@ func (h *productHandler) Update(w http.ResponseWriter, r *http.Request) {
 	w.Write(successToJson("product updated"))
 }
 
+// Delete godoc
+//
+//	@Summary		Delete product
+//	@Description	Delete a product
+//	@Tags			product
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"product id"
+//	@Success		200	{object}	dto.DefaultOutput
+//	@Failure		400	{object}	dto.DefaultOutput
+//	@Router			/product/delete/{id} [delete]
+//	@Security		ApiKeyAuth
 func (h *productHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	if id := chi.URLParam(r, "id"); id != "" {
 		err := h.service.DeleteProduct(id)
@@ -90,7 +124,20 @@ func (h *productHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Write(errorToJson("id is required"))
 }
 
-func (h *productHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+// Get godoc
+//
+//	@Summary		Get a product
+//	@Description	Get a product
+//	@Tags			product
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"product id"
+//	@Success		200	{object}	models.Product
+//	@Failure		404	{object}	dto.DefaultOutput
+//	@Failure		400	{object}	dto.DefaultOutput
+//	@Router			/product/{id} [get]
+//	@Security		ApiKeyAuth
+func (h *productHandler) Get(w http.ResponseWriter, r *http.Request) {
 	if id := chi.URLParam(r, "id"); id != "" {
 		productFound, err := h.repository.FindOneWhere("id", chi.URLParam(r, "id"))
 		if err != nil {
@@ -108,6 +155,21 @@ func (h *productHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(errorToJson("id is required"))
 }
 
+// GetAll godoc
+//
+//	@Summary		Get all products
+//	@Description	Get all products
+//	@Tags			product
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	path		string	true	"page"
+//	@Param			limit	path		string	true	"limit"
+//	@Param			sort	query		string	false	"sort"
+//	@Success		200		{object}	dto.AllProductsOutput
+//	@Failure		422		{object}	dto.DefaultOutput
+//	@Failure		500		{object}	dto.DefaultOutput
+//	@Router			/product/all/{page}/{limit} [get]
+//	@Security		ApiKeyAuth
 func (h *productHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	// page, errPage := strconv.Atoi(r.URL.Query().Get("page"))
 	// limit, errLimit := strconv.Atoi(r.URL.Query().Get("limit"))
@@ -120,7 +182,7 @@ func (h *productHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sort := r.URL.Query().Get("sort")
-	productsWithPagination, err := h.repository.FindAllWithPagination(page, limit, sort)
+	products, err := h.service.GetAllWithPagination(page, limit, sort)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(errorToJson(err.Error()))
@@ -134,7 +196,7 @@ func (h *productHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 			Page:     uint(page),
 			Limit:    uint(limit),
 			Sort:     sort,
-			Products: productsWithPagination,
+			Products: products,
 		},
 	))
 }

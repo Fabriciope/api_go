@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/Fabriciope/my-api/internal/dto"
@@ -16,7 +15,7 @@ func successWithDataToJson(message string, data dto.OutputInterface) []byte {
 		return []byte(`{"error": true, "message": "internal server error"}`)
 	}
 
-	return []byte(strings.Replace(string(defaultResponse), "}", fmt.Sprint(", ", string(data.ToJson())), 1))
+	return []byte(strings.Replace(string(defaultResponse), "}", ", " + string(data.ToJson()) + "}", 1))
 }
 
 // TODO: make

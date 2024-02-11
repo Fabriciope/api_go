@@ -25,7 +25,6 @@ func (s *ProductService) CreateProduct(dto *dto.CreateProductInput) error {
 	}
 
 	//TODO: verificar duplicação
-	// err = s.Repository.Create(product)
 	if s.Repository.Create(product) != nil {
 		return errors.New("Error when inserting product: " + product.Name)
 	}
@@ -79,4 +78,22 @@ func (s *ProductService) DeleteProduct(id string) error {
 	}
 
 	return nil
+}
+
+func (s *ProductService) GetAllWithPagination(page, limit int, sort string) ([]models.Product, error) {
+	productsFound, err := s.Repository.FindAllWithPagination(page, limit, sort)
+	if err != nil {
+		return nil, err
+	}
+
+	var products []models.Product
+	for i := range productsFound {
+		if p, ok := productsFound[i].(*models.Product); ok {
+			products = append(products, *p)
+			continue
+		}
+		return nil, errors.New("error when converting to model")
+	}
+
+	return products, nil
 }

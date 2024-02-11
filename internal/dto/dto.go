@@ -11,8 +11,8 @@ type OutputInterface interface {
 }
 
 type DefaultOutput struct {
-	Error   bool   `json:"error"`
-	Message string `json:"message"`
+	Error   bool   `json:"error" example:"false"`
+	Message string `json:"message" example:"message"`
 }
 
 func (r DefaultOutput) ToJson() []byte {
