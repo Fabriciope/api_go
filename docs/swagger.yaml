@@ -1,0 +1,298 @@
+basePath: /
+consumes:
+- application/json
+definitions:
+  dto.AllProductsOutput:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      products:
+        items:
+          $ref: '#/definitions/models.Product'
+        type: array
+      sort:
+        type: string
+    type: object
+  dto.CreateProductInput:
+    properties:
+      name:
+        type: string
+      price:
+        type: integer
+    type: object
+  dto.CreateUserInput:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.DefaultOutput:
+    properties:
+      error:
+        example: false
+        type: boolean
+      message:
+        example: message
+        type: string
+    type: object
+  dto.GetJWTInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.GetJWTOutput:
+    properties:
+      access_token:
+        type: string
+    type: object
+  dto.UpdateProductInput:
+    properties:
+      name:
+        type: string
+      price:
+        type: integer
+    type: object
+  models.Product:
+    properties:
+      create_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: fabricioalves.dev@gmail.com
+    name: Fabrício Pereira Alves
+  description: My first API in golang.
+  termsOfService: http://swagger.io/terms/
+  title: API golang
+  version: "1.0"
+paths:
+  /product/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a product
+      tags:
+      - product
+  /product/all/{page}/{limit}:
+    get:
+      consumes:
+      - application/json
+      description: Get all products
+      parameters:
+      - description: page
+        in: path
+        name: page
+        required: true
+        type: string
+      - description: limit
+        in: path
+        name: limit
+        required: true
+        type: string
+      - description: sort
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AllProductsOutput'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all products
+      tags:
+      - product
+  /product/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new product
+      parameters:
+      - description: product request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateProductInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a product
+      tags:
+      - product
+  /product/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete product
+      tags:
+      - product
+  /product/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update a product
+      parameters:
+      - description: update product request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateProductInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+      security:
+      - ApiKeyAuth: []
+      summary: Update product
+      tags:
+      - product
+  /user/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: user request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+      summary: Create user
+      tags:
+      - user
+  /user/generate_jwt:
+    post:
+      consumes:
+      - application/json
+      description: Get JWT token
+      parameters:
+      - description: user credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GetJWTInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetJWTOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.DefaultOutput'
+      summary: Get JWT token
+      tags:
+      - user
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
